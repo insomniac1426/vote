@@ -7,9 +7,9 @@ class Login extends React.Component {
             <div className = "login-form">
                 <h2>Create Session</h2>
                 <form>
-                    <div><input className="form-control" name="userName" placeholder="User Name"/></div>
-                    <div><input className="form-control" name="sessionPass" placeholder="Session Password"/></div>
-                    <div><button className="btn btn-primary"> Start Session </button></div>
+                    <div><input className="form-control"  onChange={ (event) => this.props.changeHandler(event) } value = { this.props.userName } name="userName" placeholder="User Name"/></div>
+                    <div><input className="form-control" onChange={ (event) => this.props.changeHandler(event) } value = { this.props.sessionPass } name="sessionPass" placeholder="Session Password"/></div>
+                    <div><button type="button" onClick={this.props.submitHandler} className="btn btn-primary"> Start Session </button></div>
                 </form>
             </div>
         )

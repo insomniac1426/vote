@@ -26,5 +26,9 @@ module.exports = {
             use: ["style-loader", "css-loader"]
         }]
     },
-    plugins: [htmlPlugin]
+    plugins: [htmlPlugin],
+    devServer: {
+        contentBase: path.join(__dirname, 'dist'),
+        historyApiFallback: true
+    }
 }
