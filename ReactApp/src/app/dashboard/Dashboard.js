@@ -7,33 +7,54 @@ import './dashboard.css';
 class Dashboard extends React.Component {
     state = {
         session: null,
+        voted: false
     }
     vote = (choice) => {
         axios.post("http://localhost:8082/vote", { 
             username: this.props.user, 
             sessionId: this.props.sessionId, 
             voteResponse: choice 
-        }).then(res => {
+        })
+        .then(res => {
             if(res.data.success) {
+                this.setState({
+                    voted : true
+                })
                 this.socket.emit("userVoted", this.props.sessionId)
             } else {
                 console.log(res.data)
             }
         })
+        .catch(err => console.log(err))
     }
     render() {
         return(
             <div className="dashboard">
-            <h2>Dear, {this.props.user} make your choice</h2>
-            <div className="cards-section">
-                {(this.props.voteChoices) ? this.props.voteChoices.map((choice, i) => {
-                    return (
-                        <div key={i} className="card">
-                            <h3>{choice}</h3>
-                            <button className="btn btn-primary" onClick={() => this.vote(choice)}>Vote</button>
-                        </div>)
-                }):null}
-            </div>
+            
+            {(this.state.session && this.state.session.host === this.props.user)
+            ?<h2>You are the host for this session, Session ID: { this.props.sessionId } and Session Pass: { this.state.session.pass } </h2>
+            :null}
+
+            {(this.state.voted)?(<div>
+                <h2>You have made your choice</h2>
+                <div className="cards-section">
+                    <div className="card">
+                        <h3>{ this.state.session.users[this.props.user] }</h3>
+                    </div>
+                </div>
+            </div>)
+            :(<div>
+                <h2>Dear, { this.props.user } make your choice</h2>
+                <div className="cards-section">
+                    {(this.props.voteChoices) ? this.props.voteChoices.map((choice, i) => {
+                        return (
+                            <div key={i} className="card">
+                                <h3>{choice}</h3>
+                                <button className="btn btn-outline-dark" onClick={() => this.vote(choice)}>Vote</button>
+                            </div>)
+                    }):null}
+                </div>
+            </div>)}
             <div className="user-list">
                 <h3>Users</h3>
                 <ul className="list-group">
@@ -50,6 +71,22 @@ class Dashboard extends React.Component {
         )
     }
 
+    refreshSessionData = () => {
+        axios.get('http://localhost:8082/session/' + this.props.sessionId)
+        .then(res => {
+            if(res.data.success) {
+                this.setState({
+                    session: res.data.payload
+                })
+            } else {
+                console.log(res.data);
+            }
+        })
+        .catch(err => {
+            console.loog(err);
+        })
+    }
+
     componentDidMount() {
         this.socket = openSocket('http://localhost:8082');
         
@@ -57,18 +94,11 @@ class Dashboard extends React.Component {
             sessionId: this.props.sessionId,
             username: this.props.user
         })
+
         this.socket.on('refreshUserList', (sessionId) => {
-            console.log(this.props.sessionId, sessionId)
             if(this.props.sessionId === sessionId) {
-                axios.get('http://localhost:8082/session/' + this.props.sessionId)
-                .then(res => {
-                    if(res.data.success) {
-                        this.setState({
-                            session: res.data.payload
-                        })
-                    } 
-                })
-            }    
+                this.refreshSessionData()
+            }
         })
         
     }

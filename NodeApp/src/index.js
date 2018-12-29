@@ -32,7 +32,9 @@ app.post('/login', (req, res) => {
             [db.latestSessionId]: {
                 host: req.body.user.username,
                 pass: req.body.user.sessionPass,
-                users: {}
+                users: {
+                    [req.body.user.username]: ""
+                }
             }
         }
     
