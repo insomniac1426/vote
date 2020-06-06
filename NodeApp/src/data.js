@@ -1,5 +1,5 @@
 module.exports = {
-    users: {},
-    sessions: {},
-    latestSessionId: 0
+  users: {},
+  sessions: {},
+  latestSessionId: 0,
 }
